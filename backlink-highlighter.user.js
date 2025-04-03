@@ -61,10 +61,11 @@
                 link.title = 'Tento článok obsahuje spätný odkaz';
                 link.dataset.highlighted = "true";
 
-                const keywords = matches.map(m => m.keyword).filter(k => k).join(', ');
+                const keywords = matches.map(m => m.keyword).filter(k => k);
+                const formattedKeywords = keywords.map(kw => `<strong>${kw}</strong>`).join(', ');
                 const keywordTag = document.createElement('div');
-                keywordTag.textContent = `🔍 Kľúčové slová: ${keywords}`;
-                keywordTag.style.fontSize = '12px';
+                keywordTag.innerHTML = `🔍 kľúčové slová: ${formattedKeywords}`;
+                keywordTag.style.fontSize = '15px';
                 keywordTag.style.fontStyle = 'italic';
                 keywordTag.style.color = 'rgb(176, 0, 255)';
                 keywordTag.style.marginTop = '2px';
@@ -79,8 +80,9 @@
 
     const observeResults = (backlinks) => {
         const observer = new MutationObserver(() => {
-            highlightResults(backlinks);
+            setTimeout(() => highlightResults(backlinks), 100); // malý delay
         });
+
 
         observer.observe(document.body, {
             childList: true,
