@@ -1,22 +1,3 @@
-// ==UserScript==
-// @name         Google Backlink Highlighter (rýchly s kľúčovým slovom)
-// @namespace    http://tampermonkey.net/
-// @version      0.8
-// @description  Označí výsledky Google podľa zoznamu článkov z Google Sheets, zobrazí kľúčové slovo a používa tvoje farby
-// @match        https://www.google.*/*
-// @include      https://www.google.com/search*
-// @include      https://www.google.sk/search*
-// @grant        none
-// ==/UserScript==
-
-function debounce(func, delay) {
-    let timeout;
-    return function () {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func.apply(this, arguments), delay);
-    };
-}
-
 (function () {
     'use strict';
 
@@ -64,50 +45,41 @@ function debounce(func, delay) {
             const norm = normalizeUrl(href);
             const matches = backlinks.filter(bl => norm.includes(bl.url));
             if (matches.length > 0) {
-            link.style.backgroundColor = 'rgba(210, 0, 255, 0.37)';
-            link.style.border = '2px solid #910073';
-            link.title = 'Tento článok obsahuje spätný odkaz';
-            link.dataset.highlighted = "true";
-        
-            // Odstrániť starý tag, ak tam je
-            const existingTag = link.parentElement?.querySelector('.keyword-tag');
-            if (existingTag) {
-                existingTag.remove();
-            }
-        
-            const keywords = matches.map(m => m.keyword).filter(k => k);
-            const formattedKeywords = keywords.map(kw => `<strong>${kw}</strong>`).join(', ');
-        
-            const keywordTag = document.createElement('div');
-            keywordTag.className = 'keyword-tag';
-            keywordTag.innerHTML = `🔍 kľúčové slová: ${formattedKeywords}`;
-            keywordTag.style.fontSize = '15px';
-            keywordTag.style.fontStyle = 'italic';
-            keywordTag.style.color = 'rgb(176, 0, 255)';
-            keywordTag.style.marginTop = '2px';
-        
-            if (link.parentElement) {
-                link.parentElement.appendChild(keywordTag);
-        }
-    }
+                link.style.backgroundColor = 'rgba(210, 0, 255, 0.37)';
+                link.style.border = '2px solid #910073';
+                link.title = 'Tento článok obsahuje spätný odkaz';
+                link.dataset.highlighted = "true";
 
+                const keywords = matches.map(m => m.keyword).filter(k => k);
+                const formattedKeywords = keywords.map(kw => `<strong>${kw}</strong>`).join(', ');
+                const keywordTag = document.createElement('div');
+                keywordTag.innerHTML = `🔍 kľúčové slová: ${formattedKeywords}`;
+                keywordTag.style.fontSize = '15px';
+                keywordTag.style.fontStyle = 'italic';
+                keywordTag.style.color = 'rgb(176, 0, 255)';
+                keywordTag.style.marginTop = '2px';
+
+                if (link.parentElement) {
+                    link.parentElement.appendChild(keywordTag);
+                }
+            }
 
         });
     };
 
     const observeResults = (backlinks) => {
-        const debouncedHighlight = debounce(() => highlightResults(backlinks), 200);
-    
         const observer = new MutationObserver(() => {
-            debouncedHighlight();
+            setTimeout(() => highlightResults(backlinks), 100); // malý delay
         });
-    
+
+
         observer.observe(document.body, {
             childList: true,
             subtree: true
         });
-    
-        highlightResults(backlinks); // spustenie pri načítaní
+
+        // Spustíme aj hneď
+        highlightResults(backlinks);
     };
 
     (async () => {
