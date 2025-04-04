@@ -56,24 +56,33 @@
             const norm = normalizeUrl(href);
             const matches = backlinks.filter(bl => norm.includes(bl.url));
             if (matches.length > 0) {
-                link.style.backgroundColor = 'rgba(210, 0, 255, 0.37)';
-                link.style.border = '2px solid #910073';
-                link.title = 'Tento článok obsahuje spätný odkaz';
-                link.dataset.highlighted = "true";
-
-                const keywords = matches.map(m => m.keyword).filter(k => k);
-                const formattedKeywords = keywords.map(kw => `<strong>${kw}</strong>`).join(', ');
-                const keywordTag = document.createElement('div');
-                keywordTag.innerHTML = `🔍 kľúčové slová: ${formattedKeywords}`;
-                keywordTag.style.fontSize = '15px';
-                keywordTag.style.fontStyle = 'italic';
-                keywordTag.style.color = 'rgb(176, 0, 255)';
-                keywordTag.style.marginTop = '2px';
-
-                if (link.parentElement) {
-                    link.parentElement.appendChild(keywordTag);
-                }
+            link.style.backgroundColor = 'rgba(210, 0, 255, 0.37)';
+            link.style.border = '2px solid #910073';
+            link.title = 'Tento článok obsahuje spätný odkaz';
+            link.dataset.highlighted = "true";
+        
+            // Odstrániť starý tag, ak tam je
+            const existingTag = link.parentElement?.querySelector('.keyword-tag');
+            if (existingTag) {
+                existingTag.remove();
             }
+        
+            const keywords = matches.map(m => m.keyword).filter(k => k);
+            const formattedKeywords = keywords.map(kw => `<strong>${kw}</strong>`).join(', ');
+        
+            const keywordTag = document.createElement('div');
+            keywordTag.className = 'keyword-tag';
+            keywordTag.innerHTML = `🔍 kľúčové slová: ${formattedKeywords}`;
+            keywordTag.style.fontSize = '15px';
+            keywordTag.style.fontStyle = 'italic';
+            keywordTag.style.color = 'rgb(176, 0, 255)';
+            keywordTag.style.marginTop = '2px';
+        
+            if (link.parentElement) {
+                link.parentElement.appendChild(keywordTag);
+        }
+    }
+
 
         });
     };
