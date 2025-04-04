@@ -9,6 +9,14 @@
 // @grant        none
 // ==/UserScript==
 
+function debounce(func, delay) {
+    let timeout;
+    return function () {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, arguments), delay);
+    };
+}
+
 (function () {
     'use strict';
 
@@ -88,18 +96,18 @@
     };
 
     const observeResults = (backlinks) => {
+        const debouncedHighlight = debounce(() => highlightResults(backlinks), 200);
+    
         const observer = new MutationObserver(() => {
-            setTimeout(() => highlightResults(backlinks), 100); // malý delay
+            debouncedHighlight();
         });
-
-
+    
         observer.observe(document.body, {
             childList: true,
             subtree: true
         });
-
-        // Spustíme aj hneď
-        highlightResults(backlinks);
+    
+        highlightResults(backlinks); // spustenie pri načítaní
     };
 
     (async () => {
